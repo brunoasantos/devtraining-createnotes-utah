@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($rootScope,$scope) {
+  /* widget controller */
+  var c = this;
+  c.selectItem = function(idx) {
+    var id = c.data.notes[idx].sys_id;
+    console.log('Note ID: ' + id);
+    $rootScope.noteID = id;
+    $rootScope.$emit('selectNote', id);
+  }
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css/>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>notes_list</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {  }]]></link>
+        <name>Lista de Notas</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+	//data.items vai receber uma matriz de objetos {}
+	data.notes = [];
+	var noteGR = new GlideRecord('x_snc_createnotes_note');
+	noteGR.addQuery('user', gs.getUser().getID());
+	noteGR.orderByDesc('sys_created_on');
+	noteGR.query();
+
+	// O laço (while) cria um objeto vazio a cada um dos registros de nota encontrados.
+	while (noteGR.next()) {
+		var noteObj = {};
+
+		//O método auxiliar do service portal '$sp' (getRecordDisplayValues), retorna o valor de display do registro.
+		$sp.getRecordDisplayValues(noteObj, noteGR, 'number,title,sys_id');
+
+		//pega os 20 primeiros caracteres do campo 'note'(descrição)
+		noteObj.note = noteGR.getValue('note').slice(0,20);
+
+		//empurra o objeto nesse caso o noteObj{}, que foi preenchido para o array data.notes[]
+		data.notes.push(noteObj);
+	}
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>aires</sys_created_by>
+        <sys_created_on>2023-07-11 22:54:38</sys_created_on>
+        <sys_id>6092dca447483110310a23dbd36d430c</sys_id>
+        <sys_mod_count>29</sys_mod_count>
+        <sys_name>Lista de Notas</sys_name>
+        <sys_package display_value="CreateNotes" source="x_snc_createnotes">df5fd9a5090232007f44e1046c8ff69f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="CreateNotes">df5fd9a5090232007f44e1046c8ff69f</sys_scope>
+        <sys_update_name>sp_widget_6092dca447483110310a23dbd36d430c</sys_update_name>
+        <sys_updated_by>aires</sys_updated_by>
+        <sys_updated_on>2023-07-24 19:11:34</sys_updated_on>
+        <template><![CDATA[<div class="panel panel-default">
+  <div class="panel-heading clearfix">
+    <h3 class="panel-title pull-left">
+      ${Notes}
+    </h3>
+  </div>
+  <div class="list-group">
+
+    <!--Observe o uso de ng-repeat para iterar pelos objetos na matriz data.notes-->
+    <!--A propriedade angular ng-repeat nesse caso será 'notes', que está recebendo o array data.notes que está no server script-->
+
+    <a class="list-group-item" ng-click="c.selectItem($index)" ng-repeat="note in data.notes">
+      <h4 class="list-group-item-heading">        
+        <!--notes.title é o titulo do registro retornado no array data.notes-->        
+        {{note.title}}
+      </h4>
+      <p class="list-group-item-text">
+        <!--notes.number é o número do registro retornado no array data.notes-->        
+        {{note.number}}
+      </p>
+    </a>
+  </div>
+</div>
+
+<select name='notes'>
+  <option ng-repeat="note in data.notes">{{note.title}}</option>
+</select>]]></template>
+    </sp_widget>
+</record_update>
